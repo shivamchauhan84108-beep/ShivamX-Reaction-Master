@@ -1,0 +1,113 @@
+<!DOCTYPE html><html>
+<head>
+<meta charset="UTF-8">
+<title>Shivam Reaction Master ULTRA</title>
+<style>
+body{margin:0;background:#000;color:#0ff;font-family:sans-serif}
+.screen{display:none;height:100vh;justify-content:center;align-items:center;flex-direction:column}
+.active{display:flex}
+h1{margin-bottom:10px}
+button{padding:12px 22px;border:none;border-radius:12px;margin:10px;font-size:16px;background:#0ff;color:#000;cursor:pointer;box-shadow:0 0 10px #0ff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+#gameArea{width:90%;max-width:400px;height:360px;border-radius:20px;display:flex;justify-content:center;align-items:center;background:red;box-shadow:0 0 30px red;transition:.3s}
+.menu{position:absolute;top:10px;left:10px;font-size:24px;cursor:pointer}
+.dropdown{display:none;position:absolute;top:40px;left:10px;background:#111;padding:10px;border-radius:10px}
+.dropdown button{display:block;width:160px;margin:6px 0}
+.stat{margin-top:8px}
+</style>
+</head>
+<body><!-- HOME --><div id="home" class="screen active">
+<h1>🔥 Shivam Reaction Master 🔥</h1>
+<button onclick="startGame()">🎮 Start Game</button>
+<button onclick="exitGame()">❌ Exit</button>
+</div><!-- GAME --><div id="game" class="screen">
+<div class="menu" onclick="toggleMenu()">⋮</div>
+<div class="dropdown" id="menuBox">
+<button onclick="toggleSound()">🔊 Sound</button>
+<button onclick="toggleMusic()">🎵 Music</button>
+<button onclick="pauseGame()">⏸ Pause</button>
+<button onclick="resumeGame()">▶ Resume</button>
+<button onclick="goHome()">🏠 Home</button>
+<button onclick="exitGame()">❌ Exit</button>
+</div><div id="gameArea" onclick="tap()">
+<h2 id="text">Wait...</h2>
+</div><div class="stat" id="result"></div>
+<div class="stat">🏆 Rank: <span id="rank">Noob</span></div>
+</div><!-- AUDIO --><audio id="win" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio> <audio id="lose" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio> <audio id="bgm" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+
+<script>
+let startTime,timeout,ready=false,paused=false,sound=true,music=false;
+
+const taunts=[
+ "Too slow bro 😏",
+ "Focus karo 😤",
+ "Lightning ban ja ⚡",
+ "Nice try 😂",
+ "Legend banega kya? 😎"
+];
+
+function startGame(){
+ document.getElementById("home").classList.remove("active");
+ document.getElementById("game").classList.add("active");
+ if(music) document.getElementById("bgm").play();
+ runRound();
+}
+
+function goHome(){
+ document.getElementById("game").classList.remove("active");
+ document.getElementById("home").classList.add("active");
+ document.getElementById("bgm").pause();
+}
+
+function exitGame(){ alert("Game Closed"); }
+
+function runRound(){
+ let game=document.getElementById("gameArea");
+ let text=document.getElementById("text");
+ ready=false;
+ game.style.background="red";
+ text.innerText="Wait...";
+ timeout=setTimeout(()=>{
+  if(paused) return;
+  game.style.background="green";
+  text.innerText="TAP NOW!";
+  startTime=Date.now();
+  ready=true;
+ },Math.random()*3000+2000);
+}
+
+function tap(){
+ if(paused) return;
+ let text=document.getElementById("text");
+ let result=document.getElementById("result");
+ if(!ready){ clearTimeout(timeout); text.innerText="Too Early ❌"; if(sound) document.getElementById("lose").play(); return }
+ let reaction=Date.now()-startTime;
+ text.innerText="⏱ "+reaction+" ms";
+ if(sound) document.getElementById("win").play();
+
+ // Rank system
+ let rank="Noob";
+ if(reaction<200) rank="Legend 😎";
+ else if(reaction<300) rank="Pro 🔥";
+ else if(reaction<400) rank="Average 🙂";
+ document.getElementById("rank").innerText=rank;
+
+ // Funny + AI taunt
+ let msg=taunts[Math.floor(Math.random()*taunts.length)];
+ result.innerText=msg;
+
+ ready=false;
+ setTimeout(runRound,1500);
+}
+
+function toggleMenu(){
+ let box=document.getElementById("menuBox");
+ box.style.display=box.style.display==="block"?"none":"block";
+}
+
+function pauseGame(){ paused=true }
+function resumeGame(){ paused=false; runRound() }
+function toggleSound(){ sound=!sound; alert(sound?"Sound ON 🔊":"Sound OFF 🔇") }
+function toggleMusic(){ music=!music; let m=document.getElementById("bgm"); if(music){m.play()}else{m.pause()} }
+</script></body>
+</html>
